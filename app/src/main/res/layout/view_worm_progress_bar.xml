@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProgressBar xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/progress_bar"
+  style="@style/HorizontalFullWidthProgressBar"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:max="1000"
+  tools:progress="0"
+  tools:progressBackgroundTint="@color/colorGrey"
+  tools:progressTint="@color/colorGrey"
+  tools:secondaryProgress="300"
+  tools:secondaryProgressTint="@color/colorGreyDark"/>
