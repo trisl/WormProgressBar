@@ -1,4 +1,4 @@
-package com.tristanroussel.wormprogressbar
+package com.tristanroussel.worm
 
 import android.content.Context
 import androidx.annotation.ColorInt

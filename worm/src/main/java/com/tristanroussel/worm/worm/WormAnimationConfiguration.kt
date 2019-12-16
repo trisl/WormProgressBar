@@ -1,4 +1,4 @@
-package com.tristanroussel.wormprogressbar.worm
+package com.tristanroussel.worm.worm
 
 import android.view.animation.Interpolator
 
