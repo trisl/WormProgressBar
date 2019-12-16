@@ -1,4 +1,4 @@
-package com.tristanroussel.wormprogressbar.worm
+package com.tristanroussel.worm.worm
 
 import android.animation.ObjectAnimator
 import android.content.Context
@@ -12,16 +12,16 @@ import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
-import com.tristanroussel.wormprogressbar.R
-import com.tristanroussel.wormprogressbar.color
+import com.tristanroussel.worm.R
+import com.tristanroussel.worm.color
 import kotlinx.android.synthetic.main.view_worm_progress_bar.view.*
 
 /**
  * Created by Tristan Roussel on 2019-12-16.
  */
 class WormProgressBar(
-        context: Context,
-        attributeSet: AttributeSet
+    context: Context,
+    attributeSet: AttributeSet
 ) : ConstraintLayout(context, attributeSet) {
 
     class AnimationConfigurationBuilder {
@@ -69,10 +69,10 @@ class WormProgressBar(
         val configuration = WormConfiguration()
 
         context.theme.obtainStyledAttributes(
-                attributeSet,
-                R.styleable.WormProgressBar,
-                0,
-                0
+            attributeSet,
+            R.styleable.WormProgressBar,
+            0,
+            0
         ).run {
             val primaryColor = getColor(R.styleable.WormProgressBar_wormPrimaryColor, defaultPrimaryColor)
             val secondaryColor = getColor(R.styleable.WormProgressBar_wormSecondaryColor, defaultSecondaryColor)
@@ -94,26 +94,27 @@ class WormProgressBar(
     }
 
     private fun WormAnimationConfiguration.createAnimator(
-            propertyName: String,
-            startValue: Int,
-            endValue: Int,
-            actionOnStart: () -> Unit,
-            actionOnEnd: () -> Unit
+        propertyName: String,
+        startValue: Int,
+        endValue: Int,
+        actionOnStart: () -> Unit,
+        actionOnEnd: () -> Unit
     ): ObjectAnimator =
-            ObjectAnimator
-                    .ofInt(progressBar, propertyName, startValue, endValue)
-                    .apply {
-                        duration = this@createAnimator.duration
-                        interpolator = this@createAnimator.interpolator
-                        doOnStart { actionOnStart.invoke() }
-                        doOnEnd { actionOnEnd.invoke() }
-                    }
+        ObjectAnimator
+            .ofInt(progressBar, propertyName, startValue, endValue)
+            .apply {
+                duration = this@createAnimator.duration
+                interpolator = this@createAnimator.interpolator
+                doOnStart { actionOnStart.invoke() }
+                doOnEnd { actionOnEnd.invoke() }
+            }
 
     private fun checkInitialization() {
         if (::secondaryProgressAnimator.isInitialized.not()
-                || ::secondaryProgressReverseAnimator.isInitialized.not()
-                || ::primaryProgressAnimator.isInitialized.not()
-                || ::primaryProgressReverseAnimator.isInitialized.not()) {
+            || ::secondaryProgressReverseAnimator.isInitialized.not()
+            || ::primaryProgressAnimator.isInitialized.not()
+            || ::primaryProgressReverseAnimator.isInitialized.not()
+        ) {
             throw Exception("Animation is not initialized, may be you forgot to call the initAnimation method ?")
         }
     }
@@ -135,35 +136,35 @@ class WormProgressBar(
         val animationConfiguration = configuration ?: defaultWormAnimationConfiguration
 
         secondaryProgressAnimator = animationConfiguration.createAnimator(
-                propertyName = "secondaryProgress",
-                startValue = 0,
-                endValue = 1000,
-                actionOnStart = { animationState = AnimationState.SECONDARY },
-                actionOnEnd = { primaryProgressAnimator.start() }
+            propertyName = "secondaryProgress",
+            startValue = 0,
+            endValue = 1000,
+            actionOnStart = { animationState = AnimationState.SECONDARY },
+            actionOnEnd = { primaryProgressAnimator.start() }
         )
 
         secondaryProgressReverseAnimator = animationConfiguration.createAnimator(
-                propertyName = "secondaryProgress",
-                startValue = 1000,
-                endValue = 0,
-                actionOnStart = { animationState = AnimationState.SECONDARY_REVERSE },
-                actionOnEnd = { secondaryProgressAnimator.start() }
+            propertyName = "secondaryProgress",
+            startValue = 1000,
+            endValue = 0,
+            actionOnStart = { animationState = AnimationState.SECONDARY_REVERSE },
+            actionOnEnd = { secondaryProgressAnimator.start() }
         )
 
         primaryProgressAnimator = animationConfiguration.createAnimator(
-                propertyName = "progress",
-                startValue = 0,
-                endValue = 1000,
-                actionOnStart = { animationState = AnimationState.PRIMARY },
-                actionOnEnd = { primaryProgressReverseAnimator.start() }
+            propertyName = "progress",
+            startValue = 0,
+            endValue = 1000,
+            actionOnStart = { animationState = AnimationState.PRIMARY },
+            actionOnEnd = { primaryProgressReverseAnimator.start() }
         )
 
         primaryProgressReverseAnimator = animationConfiguration.createAnimator(
-                propertyName = "progress",
-                startValue = 1000,
-                endValue = 0,
-                actionOnStart = { animationState = AnimationState.PRIMARY_REVERSE },
-                actionOnEnd = { secondaryProgressReverseAnimator.start() }
+            propertyName = "progress",
+            startValue = 1000,
+            endValue = 0,
+            actionOnStart = { animationState = AnimationState.PRIMARY_REVERSE },
+            actionOnEnd = { secondaryProgressReverseAnimator.start() }
         )
     }
 

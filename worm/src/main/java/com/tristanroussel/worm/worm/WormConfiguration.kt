@@ -1,4 +1,4 @@
-package com.tristanroussel.wormprogressbar.worm
+package com.tristanroussel.worm.worm
 
 /**
  * Created by Tristan Roussel on 2019-12-16.
