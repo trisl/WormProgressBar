@@ -14,19 +14,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         wormProgressBar = worm
+
+        wormProgressBar.initAnimation()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
 
-        val config =
-                WormProgressBar
-                        .AnimationConfigurationBuilder()
-                        .apply {
-                            duration = 500L
-                        }
-                        .build()
+        wormProgressBar.start()
+    }
 
-        wormProgressBar.start(config)
+    override fun onPause() {
+        super.onPause()
+
+        wormProgressBar.pause()
     }
 }

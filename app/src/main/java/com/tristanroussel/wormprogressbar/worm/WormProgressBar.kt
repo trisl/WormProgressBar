@@ -1,6 +1,5 @@
 package com.tristanroussel.wormprogressbar.worm
 
-import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.res.ColorStateList
@@ -11,7 +10,6 @@ import android.view.animation.Interpolator
 import android.widget.ProgressBar
 import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.animation.addListener
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import com.tristanroussel.wormprogressbar.R
@@ -24,11 +22,26 @@ import kotlinx.android.synthetic.main.view_worm_progress_bar.view.*
 class WormProgressBar(
         context: Context,
         attributeSet: AttributeSet
-) : ConstraintLayout(context, attributeSet),
-        IWormConfiguration,
-        IWormAnimation {
+) : ConstraintLayout(context, attributeSet) {
+
+    class AnimationConfigurationBuilder {
+
+        var duration: Long = 500L
+        var interpolator: Interpolator = AccelerateDecelerateInterpolator()
+
+        fun build(): WormAnimationConfiguration = WormAnimationConfiguration(duration, interpolator)
+    }
+
+    private enum class AnimationState {
+        SECONDARY,
+        PRIMARY,
+        PRIMARY_REVERSE,
+        SECONDARY_REVERSE
+    }
 
     private val progressBar: ProgressBar
+
+    private var animationState: AnimationState = AnimationState.SECONDARY
 
     //region Constants
     private val defaultPrimaryColor: Int = context.color(android.R.color.holo_blue_bright)
@@ -36,13 +49,19 @@ class WormProgressBar(
     private val defaultWormAnimationConfiguration = AnimationConfigurationBuilder().build()
     //endregion Constants
 
+    //region Animator
+    private lateinit var secondaryProgressAnimator: ObjectAnimator
+    private lateinit var secondaryProgressReverseAnimator: ObjectAnimator
+    private lateinit var primaryProgressAnimator: ObjectAnimator
+    private lateinit var primaryProgressReverseAnimator: ObjectAnimator
+    //endregion Animator
+
     init {
         LayoutInflater.from(context).inflate(R.layout.view_worm_progress_bar, this).apply {
             progressBar = progress_bar
         }
 
-        val configuration = retrieveConfiguration(attributeSet)
-        configView(configuration)
+        configView(configuration = retrieveConfiguration(attributeSet))
     }
 
     //region private
@@ -73,82 +92,101 @@ class WormProgressBar(
             setSecondaryColor(secondaryColor)
         }
     }
+
+    private fun WormAnimationConfiguration.createAnimator(
+            propertyName: String,
+            startValue: Int,
+            endValue: Int,
+            actionOnStart: () -> Unit,
+            actionOnEnd: () -> Unit
+    ): ObjectAnimator =
+            ObjectAnimator
+                    .ofInt(progressBar, propertyName, startValue, endValue)
+                    .apply {
+                        duration = this@createAnimator.duration
+                        interpolator = this@createAnimator.interpolator
+                        doOnStart { actionOnStart.invoke() }
+                        doOnEnd { actionOnEnd.invoke() }
+                    }
+
+    private fun checkInitialization() {
+        if (::secondaryProgressAnimator.isInitialized.not()
+                || ::secondaryProgressReverseAnimator.isInitialized.not()
+                || ::primaryProgressAnimator.isInitialized.not()
+                || ::primaryProgressReverseAnimator.isInitialized.not()) {
+            throw Exception("Animation is not initialized, may be you forgot to call the initAnimation method ?")
+        }
+    }
     //endregion private
 
     //region Worm configuration
-    override fun setPrimaryColor(@ColorInt primaryColor: Int) {
+    fun setPrimaryColor(@ColorInt primaryColor: Int) {
         progressBar.progressTintList = ColorStateList.valueOf(primaryColor)
         progressBar.progressBackgroundTintList = ColorStateList.valueOf(primaryColor)
     }
 
-    override fun setSecondaryColor(@ColorInt secondaryColor: Int) {
+    fun setSecondaryColor(@ColorInt secondaryColor: Int) {
         progressBar.secondaryProgressTintList = ColorStateList.valueOf(secondaryColor)
     }
     //endregion Worm configuration
 
     //region Worm animation
-    override fun start(configuration: WormAnimationConfiguration?) {
+    fun initAnimation(configuration: WormAnimationConfiguration? = null) {
         val animationConfiguration = configuration ?: defaultWormAnimationConfiguration
 
-        val secondaryProgressReverseAnimation =
-                ObjectAnimator
-                        .ofInt(progressBar, "secondaryProgress", 1000, 0)
-                        .apply {
-                            duration = animationConfiguration.duration
-                            interpolator = animationConfiguration.interpolator
-                        }
+        secondaryProgressAnimator = animationConfiguration.createAnimator(
+                propertyName = "secondaryProgress",
+                startValue = 0,
+                endValue = 1000,
+                actionOnStart = { animationState = AnimationState.SECONDARY },
+                actionOnEnd = { primaryProgressAnimator.start() }
+        )
 
-        val primaryProgressReverseAnimator =
-                ObjectAnimator
-                        .ofInt(progressBar, "progress", 1000, 0)
-                        .apply {
-                            duration = animationConfiguration.duration
-                            interpolator = animationConfiguration.interpolator
+        secondaryProgressReverseAnimator = animationConfiguration.createAnimator(
+                propertyName = "secondaryProgress",
+                startValue = 1000,
+                endValue = 0,
+                actionOnStart = { animationState = AnimationState.SECONDARY_REVERSE },
+                actionOnEnd = { secondaryProgressAnimator.start() }
+        )
 
-                            doOnEnd {
-                                secondaryProgressReverseAnimation.start()
-                            }
-                        }
+        primaryProgressAnimator = animationConfiguration.createAnimator(
+                propertyName = "progress",
+                startValue = 0,
+                endValue = 1000,
+                actionOnStart = { animationState = AnimationState.PRIMARY },
+                actionOnEnd = { primaryProgressReverseAnimator.start() }
+        )
 
-        val primaryProgressAnimator =
-                ObjectAnimator
-                        .ofInt(progressBar, "progress", 0, 1000)
-                        .apply {
-                            duration = animationConfiguration.duration
-                            interpolator = animationConfiguration.interpolator
-
-                            doOnEnd {
-                                primaryProgressReverseAnimator.start()
-                            }
-                        }
-
-        val secondaryProgressAnimation =
-                ObjectAnimator
-                        .ofInt(progressBar, "secondaryProgress", 0, 1000)
-                        .apply {
-                            duration = animationConfiguration.duration
-                            interpolator = animationConfiguration.interpolator
-
-                            doOnEnd {
-                                primaryProgressAnimator.start()
-                            }
-                        }
-
-        secondaryProgressReverseAnimation.doOnEnd { secondaryProgressAnimation.start() }
-
-        secondaryProgressAnimation.start()
+        primaryProgressReverseAnimator = animationConfiguration.createAnimator(
+                propertyName = "progress",
+                startValue = 1000,
+                endValue = 0,
+                actionOnStart = { animationState = AnimationState.PRIMARY_REVERSE },
+                actionOnEnd = { secondaryProgressReverseAnimator.start() }
+        )
     }
 
-    override fun cancel() {
+    fun start() {
+        checkInitialization()
 
+        when (animationState) {
+            AnimationState.SECONDARY -> secondaryProgressAnimator.start()
+            AnimationState.PRIMARY -> primaryProgressAnimator.start()
+            AnimationState.PRIMARY_REVERSE -> primaryProgressReverseAnimator.start()
+            AnimationState.SECONDARY_REVERSE -> secondaryProgressReverseAnimator.start()
+        }
     }
-    //region Worm animation
 
-    class AnimationConfigurationBuilder {
+    fun pause() {
+        checkInitialization()
 
-        var duration: Long = 400L
-        var interpolator: Interpolator = AccelerateDecelerateInterpolator()
-
-        fun build(): WormAnimationConfiguration = WormAnimationConfiguration(duration, interpolator)
+        when (animationState) {
+            AnimationState.SECONDARY -> secondaryProgressAnimator.pause()
+            AnimationState.PRIMARY -> primaryProgressAnimator.pause()
+            AnimationState.PRIMARY_REVERSE -> primaryProgressReverseAnimator.pause()
+            AnimationState.SECONDARY_REVERSE -> secondaryProgressReverseAnimator.pause()
+        }
     }
+    //endregion Worm animation
 }
