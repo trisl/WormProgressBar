@@ -2,7 +2,7 @@ package com.tristanroussel.wormprogressbar
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.tristanroussel.worm.worm.WormProgressBar
+import com.tristanroussel.worm.WormProgressBar
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
