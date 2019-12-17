@@ -209,7 +209,7 @@ class WormProgressBar(
             ObjectAnimator
                 .ofInt(progressBar, "secondaryProgress", progressBar.secondaryProgress, progressBar.max)
                 .apply {
-                    duration = progressBar.secondaryProgress * 500L / progressBar.max
+                    duration = (progressBar.max - progressBar.secondaryProgress) * 500L / progressBar.max
                     interpolator = AccelerateDecelerateInterpolator()
                 }
                 .start()
