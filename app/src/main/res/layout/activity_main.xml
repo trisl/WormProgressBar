@@ -7,8 +7,8 @@
   android:layout_height="match_parent"
   tools:context=".MainActivity">
 
-  <com.tristanroussel.wormprogressbar.worm.WormProgressBar
-    android:id="@+id/worm"
+  <com.tristanroussel.worm.WormProgressBar
+    android:id="@+id/worm_view"
     android:layout_width="match_parent"
     android:layout_height="56dp"
     app:layout_constraintBottom_toBottomOf="parent"
