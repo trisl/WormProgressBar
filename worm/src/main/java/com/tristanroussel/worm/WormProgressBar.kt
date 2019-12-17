@@ -1,4 +1,4 @@
-package com.tristanroussel.worm.worm
+package com.tristanroussel.worm
 
 import android.animation.ObjectAnimator
 import android.content.Context
@@ -12,8 +12,6 @@ import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
-import com.tristanroussel.worm.R
-import com.tristanroussel.worm.color
 import kotlinx.android.synthetic.main.view_worm_progress_bar.view.*
 
 /**
@@ -29,7 +27,8 @@ class WormProgressBar(
         var duration: Long = 500L
         var interpolator: Interpolator = AccelerateDecelerateInterpolator()
 
-        fun build(): WormAnimationConfiguration = WormAnimationConfiguration(duration, interpolator)
+        fun build(): WormAnimationConfiguration =
+            WormAnimationConfiguration(duration, interpolator)
     }
 
     private enum class AnimationState {
@@ -41,12 +40,14 @@ class WormProgressBar(
 
     private val progressBar: ProgressBar
 
-    private var animationState: AnimationState = AnimationState.SECONDARY
+    private var animationState: AnimationState =
+        AnimationState.SECONDARY
 
     //region Constants
     private val defaultPrimaryColor: Int = context.color(android.R.color.holo_blue_bright)
     private val defaultSecondaryColor: Int = context.color(android.R.color.holo_blue_dark)
-    private val defaultWormAnimationConfiguration = AnimationConfigurationBuilder().build()
+    private val defaultWormAnimationConfiguration = AnimationConfigurationBuilder()
+        .build()
     //endregion Constants
 
     //region Animator
@@ -147,7 +148,9 @@ class WormProgressBar(
             propertyName = "secondaryProgress",
             startValue = 1000,
             endValue = 0,
-            actionOnStart = { animationState = AnimationState.SECONDARY_REVERSE },
+            actionOnStart = { animationState =
+                AnimationState.SECONDARY_REVERSE
+            },
             actionOnEnd = { secondaryProgressAnimator.start() }
         )
 

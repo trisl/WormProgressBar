@@ -1,4 +1,4 @@
-package com.tristanroussel.worm.worm
+package com.tristanroussel.worm
 
 import android.view.animation.Interpolator
 
