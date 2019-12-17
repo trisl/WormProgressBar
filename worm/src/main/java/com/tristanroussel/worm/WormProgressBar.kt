@@ -148,8 +148,9 @@ class WormProgressBar(
             propertyName = "secondaryProgress",
             startValue = 1000,
             endValue = 0,
-            actionOnStart = { animationState =
-                AnimationState.SECONDARY_REVERSE
+            actionOnStart = {
+                animationState =
+                    AnimationState.SECONDARY_REVERSE
             },
             actionOnEnd = { secondaryProgressAnimator.start() }
         )
@@ -190,6 +191,31 @@ class WormProgressBar(
             AnimationState.PRIMARY -> primaryProgressAnimator.pause()
             AnimationState.PRIMARY_REVERSE -> primaryProgressReverseAnimator.pause()
             AnimationState.SECONDARY_REVERSE -> secondaryProgressReverseAnimator.pause()
+        }
+    }
+
+    fun complete(animate: Boolean = true) {
+        pause()
+
+        if (animate) {
+            ObjectAnimator
+                .ofInt(progressBar, "progress", progressBar.progress, 0)
+                .apply {
+                    duration = progressBar.progress * 500L / progressBar.max
+                    interpolator = AccelerateDecelerateInterpolator()
+                }
+                .start()
+
+            ObjectAnimator
+                .ofInt(progressBar, "secondaryProgress", progressBar.secondaryProgress, progressBar.max)
+                .apply {
+                    duration = progressBar.secondaryProgress * 500L / progressBar.max
+                    interpolator = AccelerateDecelerateInterpolator()
+                }
+                .start()
+        } else {
+            progressBar.progress = 0
+            progressBar.secondaryProgress = progressBar.max
         }
     }
     //endregion Worm animation
