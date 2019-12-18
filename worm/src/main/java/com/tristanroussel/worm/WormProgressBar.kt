@@ -40,8 +40,7 @@ class WormProgressBar(
 
     private val progressBar: ProgressBar
 
-    private var animationState: AnimationState =
-        AnimationState.SECONDARY
+    private var animationState: AnimationState = AnimationState.SECONDARY
 
     //region Constants
     private val defaultPrimaryColor: Int = context.color(android.R.color.holo_blue_bright)
@@ -56,6 +55,9 @@ class WormProgressBar(
     private lateinit var primaryProgressAnimator: ObjectAnimator
     private lateinit var primaryProgressReverseAnimator: ObjectAnimator
     //endregion Animator
+
+    var isAnimating: Boolean = false
+        private set
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_worm_progress_bar, this).apply {
@@ -134,46 +136,50 @@ class WormProgressBar(
 
     //region Worm animation
     fun initAnimation(configuration: WormAnimationConfiguration? = null) {
-        val animationConfiguration = configuration ?: defaultWormAnimationConfiguration
+        if (!isAnimating) {
+            val animationConfiguration = configuration ?: defaultWormAnimationConfiguration
 
-        secondaryProgressAnimator = animationConfiguration.createAnimator(
-            propertyName = "secondaryProgress",
-            startValue = 0,
-            endValue = 1000,
-            actionOnStart = { animationState = AnimationState.SECONDARY },
-            actionOnEnd = { primaryProgressAnimator.start() }
-        )
+            secondaryProgressAnimator = animationConfiguration.createAnimator(
+                propertyName = "secondaryProgress",
+                startValue = 0,
+                endValue = 1000,
+                actionOnStart = { animationState = AnimationState.SECONDARY },
+                actionOnEnd = { primaryProgressAnimator.start() }
+            )
 
-        secondaryProgressReverseAnimator = animationConfiguration.createAnimator(
-            propertyName = "secondaryProgress",
-            startValue = 1000,
-            endValue = 0,
-            actionOnStart = {
-                animationState =
-                    AnimationState.SECONDARY_REVERSE
-            },
-            actionOnEnd = { secondaryProgressAnimator.start() }
-        )
+            secondaryProgressReverseAnimator = animationConfiguration.createAnimator(
+                propertyName = "secondaryProgress",
+                startValue = 1000,
+                endValue = 0,
+                actionOnStart = {
+                    animationState =
+                        AnimationState.SECONDARY_REVERSE
+                },
+                actionOnEnd = { secondaryProgressAnimator.start() }
+            )
 
-        primaryProgressAnimator = animationConfiguration.createAnimator(
-            propertyName = "progress",
-            startValue = 0,
-            endValue = 1000,
-            actionOnStart = { animationState = AnimationState.PRIMARY },
-            actionOnEnd = { primaryProgressReverseAnimator.start() }
-        )
+            primaryProgressAnimator = animationConfiguration.createAnimator(
+                propertyName = "progress",
+                startValue = 0,
+                endValue = 1000,
+                actionOnStart = { animationState = AnimationState.PRIMARY },
+                actionOnEnd = { primaryProgressReverseAnimator.start() }
+            )
 
-        primaryProgressReverseAnimator = animationConfiguration.createAnimator(
-            propertyName = "progress",
-            startValue = 1000,
-            endValue = 0,
-            actionOnStart = { animationState = AnimationState.PRIMARY_REVERSE },
-            actionOnEnd = { secondaryProgressReverseAnimator.start() }
-        )
+            primaryProgressReverseAnimator = animationConfiguration.createAnimator(
+                propertyName = "progress",
+                startValue = 1000,
+                endValue = 0,
+                actionOnStart = { animationState = AnimationState.PRIMARY_REVERSE },
+                actionOnEnd = { secondaryProgressReverseAnimator.start() }
+            )
+        }
     }
 
     fun start() {
         checkInitialization()
+
+        isAnimating = true
 
         when (animationState) {
             AnimationState.SECONDARY -> secondaryProgressAnimator.start()
@@ -185,6 +191,8 @@ class WormProgressBar(
 
     fun pause() {
         checkInitialization()
+
+        isAnimating = false
 
         when (animationState) {
             AnimationState.SECONDARY -> secondaryProgressAnimator.pause()
