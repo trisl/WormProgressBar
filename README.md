@@ -24,19 +24,19 @@ wormProgressBar.initAnimation()
 ```
 
 - You can now start the animation ...
-![Worm started](gifs/start_worm.gif)
+
 ```kotlin
 wormProgressBar.start()
 ```
 
-- ... pause it ... 
-![Worm pause](gifs/pause_worm.gif)
+- ... pause it ...
+
 ```kotlin
 wormProgressBar.pause()
 ```
 
 - ... Or complete it with an animation or not
-![Worm completed](gifs/complete_worm.gif)
+
 ```kotlin
 wormProgressBar.complete(animating = true)
 ```
