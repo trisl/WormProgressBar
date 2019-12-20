@@ -6,7 +6,6 @@ import android.content.res.ColorStateList
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.Interpolator
 import android.widget.ProgressBar
 import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -22,15 +21,6 @@ class WormProgressBar(
     attributeSet: AttributeSet
 ) : ConstraintLayout(context, attributeSet) {
 
-    class AnimationConfigurationBuilder {
-
-        var duration: Long = 500L
-        var interpolator: Interpolator = AccelerateDecelerateInterpolator()
-
-        fun build(): WormAnimationConfiguration =
-            WormAnimationConfiguration(duration, interpolator)
-    }
-
     private enum class AnimationState {
         SECONDARY,
         PRIMARY,
@@ -45,8 +35,7 @@ class WormProgressBar(
     //region Constants
     private val defaultPrimaryColor: Int = context.color(android.R.color.holo_blue_bright)
     private val defaultSecondaryColor: Int = context.color(android.R.color.holo_blue_dark)
-    private val defaultWormAnimationConfiguration = AnimationConfigurationBuilder()
-        .build()
+    private val defaultWormAnimationConfiguration = WormAnimationConfiguration()
     //endregion Constants
 
     //region Animator
@@ -77,8 +66,10 @@ class WormProgressBar(
             0,
             0
         ).run {
-            val primaryColor = getColor(R.styleable.WormProgressBar_wormPrimaryColor, defaultPrimaryColor)
-            val secondaryColor = getColor(R.styleable.WormProgressBar_wormSecondaryColor, defaultSecondaryColor)
+            val primaryColor =
+                getColor(R.styleable.WormProgressBar_wormPrimaryColor, defaultPrimaryColor)
+            val secondaryColor =
+                getColor(R.styleable.WormProgressBar_wormSecondaryColor, defaultSecondaryColor)
 
             configuration.primaryColor = primaryColor
             configuration.secondaryColor = secondaryColor
@@ -215,9 +206,15 @@ class WormProgressBar(
                 .start()
 
             ObjectAnimator
-                .ofInt(progressBar, "secondaryProgress", progressBar.secondaryProgress, progressBar.max)
+                .ofInt(
+                    progressBar,
+                    "secondaryProgress",
+                    progressBar.secondaryProgress,
+                    progressBar.max
+                )
                 .apply {
-                    duration = (progressBar.max - progressBar.secondaryProgress) * 500L / progressBar.max
+                    duration =
+                        (progressBar.max - progressBar.secondaryProgress) * 500L / progressBar.max
                     interpolator = AccelerateDecelerateInterpolator()
                 }
                 .start()
