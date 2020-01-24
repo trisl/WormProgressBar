@@ -223,5 +223,40 @@ class WormProgressBar(
             progressBar.secondaryProgress = progressBar.max
         }
     }
+
+    fun reset(animate: Boolean = true) {
+        pause()
+
+        if (animate) {
+            ObjectAnimator
+                .ofInt(
+                    progressBar,
+                    "secondaryProgress",
+                    progressBar.secondaryProgress,
+                    0
+                )
+                .apply {
+                    duration = progressBar.secondaryProgress * 500L / progressBar.max
+                    interpolator = AccelerateDecelerateInterpolator()
+                }
+                .start()
+
+            ObjectAnimator
+                .ofInt(
+                    progressBar,
+                    "progress",
+                    progressBar.progress,
+                    0
+                )
+                .apply {
+                    duration = progressBar.progress * 500L / progressBar.max
+                    interpolator = AccelerateDecelerateInterpolator()
+                }
+                .start()
+        } else {
+            progressBar.secondaryProgress = 0
+            progressBar.progress = progressBar.max
+        }
+    }
     //endregion Worm animation
 }
